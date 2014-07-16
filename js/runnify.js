@@ -21,9 +21,9 @@ function main() {
 
 function renderPlaylist(allTracks) {
     require(['$api/models','$views/list#List'], function(models, List) {
-            models.Playlist.removeTemporary("playlist");
             models.Playlist.createTemporary("playlist").done(function(playlist) {
                 playlist.load('tracks').done(function(loadedPlaylist) {
+                    loadedPlaylist.tracks.clear();
                     allTracks.forEach(function(track) {
                         loadedPlaylist.tracks.add(models.Track.fromURI(track.get("spotifyURI")));
                         console.log('adding ' + track.get('title'))
