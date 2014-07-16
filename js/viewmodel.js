@@ -15,7 +15,7 @@ var TrackModel = Backbone.Model.extend({
 var TrackCollection = Backbone.Collection.extend({
     model:TrackModel,
     comparator:function(track) {
-        return track.get("bpm");
+        return -track.get("bpm");
     }
 });
 

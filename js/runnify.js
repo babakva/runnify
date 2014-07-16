@@ -8,9 +8,9 @@ function main() {
             toplist.artists.snapshot().done(function(artists) {
                 artists.toArray().forEach(function (artist) {
                     topTracks.push(getArtistTopTracks(artist, models, Toplist, function(topTracks){
-                        sortTracks(topTracks, function(allTracks) {
+                        var allTracks = sortTracks(topTracks, function(allTracks) {
                             renderPlaylist(allTracks);
-                            renderTracks(allTracks);
+                            renderTracksInfo(allTracks);
                         });
                     }));
                 });
@@ -26,11 +26,9 @@ function renderPlaylist(allTracks) {
                     loadedPlaylist.tracks.clear();
                     allTracks.forEach(function(track) {
                         loadedPlaylist.tracks.add(models.Track.fromURI(track.get("spotifyURI")));
-                        console.log('adding ' + track.get('title'))
                     });
                 });
                 var list = List.forPlaylist(playlist);
-                console.log(list.node);
                 document.getElementById('playlistContainer').innerHTML = '';
                 document.getElementById('playlistContainer').appendChild(list.node);
                 list.init();
@@ -48,7 +46,6 @@ function getArtistTopTracks(artist, models, Toplist, callback) {
         for(var i = 0; i < tracks.length; i++) {
              var track = tracks.get(i);
              topTracks.push(track);
-             console.log(track.name);
         }
         callback(topTracks);
     });
@@ -78,12 +75,14 @@ function sortTracks(tracks, callback) {
            } else {
                calledTrack.set("bpm",bpm);
            }
+           if(i == tracks.length) {
+                callback(allTracks.sort());
+           }
        });
     }
-    callback(allTracks.sort());
 }
 
-function renderTracks(allTracks) {
+function renderTracksInfo(allTracks) {
     table = new TableView({collection:allTracks});
     table.setElement($("#backbone"));
     table.render();
