@@ -5,7 +5,7 @@ function main() {
             var toplist = Toplist.forCurrentUser();
             // top tracks for all top artists
             var topTracks = [];
-            toplist.artists.snapshot().done(function(artists) {
+            toplist.artists.snapshot(0,5).done(function(artists) {
                 artists.toArray().forEach(function (artist) {
                     topTracks.push(getArtistTopTracks(artist, models, Toplist, function(topTracks){
                         var allTracks = sortTracks(topTracks, function(allTracks) {
@@ -53,6 +53,7 @@ function getArtistTopTracks(artist, models, Toplist, callback) {
 
 function sortTracks(tracks, callback) {
     allTracks = new TrackCollection();
+    var remainingTracks = tracks.length;
     for (var i=0; i<tracks.length; i++) {
         var item = tracks[i];
         var spotifyURI = item.uri;
@@ -72,10 +73,12 @@ function sortTracks(tracks, callback) {
         EchoNest.getBPM(track, function(calledTrack, bpm) {
            if (calledTrack === null) {
                console.error("Unable to find BPM for "+artist+"-"+title);
+               remainingTracks--;
            } else {
                calledTrack.set("bpm",bpm);
+               remainingTracks--;
            }
-           if(i == tracks.length) {
+           if(remainingTracks == 0) {
                 callback(allTracks.sort());
            }
        });
