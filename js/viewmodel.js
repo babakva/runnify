@@ -92,3 +92,33 @@ var TableView = Backbone.View.extend({
             });
         }
 });
+
+
+var PlaylistModel = Backbone.Model.extend({
+    defaults:{
+        name:"None",
+        uri:"uri"
+    },
+    initialize:function() {
+    }
+});
+
+var PlaylistCollection = Backbone.Collection.extend({
+    model:PlaylistModel
+});
+
+var PlaylistView = Backbone.View.extend({
+    el: '#playlists',
+    template:  _.template('<select id="playlist-selector" name="playlist-selector"><% _(this.collection.toJSON()).each(function(playlist) { %><option value="<%= playlist.uri %>"><%= playlist.name %></option><% }); %></select>'),
+    events: {
+        "change select[name='playlist-selector']": "updateSelect"
+    },
+    render:function() {
+        this.$el.html(this.template(this.collection.toJSON()));
+
+    },
+    updateSelect: function(e) {
+        var newValue = $(e.currentTarget).val();
+        loadPlaylist(newValue);
+    }
+});

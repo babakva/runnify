@@ -23,20 +23,32 @@ function main() {
 
 function loadUserPlaylists() {
     require(['$api/library#Library'], function(Library) {
-      returnedLibrary = Library.forCurrentUser();
-      returnedLibrary.playlists.snapshot().done(function(snapshot) {
-        for (var i = 0, l = snapshot.length; i < l; i++) {
-          var playlist = snapshot.get(i);
-          //console.log(playlist.name);
-        }
-      });
+        var playlistCollection = new PlaylistCollection()
+        returnedLibrary = Library.forCurrentUser();
+        returnedLibrary.playlists.snapshot().done(function(snapshot) {
+            for (var i = 0, l = snapshot.length; i < l; i++) {
+                var playlist = snapshot.get(i);
+                var playlistModel = new PlaylistModel();
+                playlistModel.set({
+                    uri: playlist.uri,
+                    name: playlist.name,
+                    error:function(error){console.error("Error")}
+                });
+                playlistCollection.push(playlistModel);
+            }
+            plView = new PlaylistView({collection:playlistCollection});
+            plView.render();
+        });
     });
 }
 
-function loadPlaylist() {
+function loadPlaylist(playlistURI) {
+    if (playlistURI === null) {
+        playlistURI = "spotify:user:babi:playlist:1Cz0g1j82xxq5QSD3YrDYP";
+    }
     loadUserPlaylists();
         require(['$api/models','$views/list#List'], function(models, List) {
-            models.Playlist.fromURI("spotify:user:babi:playlist:1Cz0g1j82xxq5QSD3YrDYP").load('tracks').done(function(playlist) {
+            models.Playlist.fromURI(playlistURI).load('tracks').done(function(playlist) {
                 playlist.tracks.snapshot().done(function(trackSnapshot){
                     var tracks = trackSnapshot.toArray();
                     sortTracks(tracks, function(tracksWithBPM) {
@@ -128,3 +140,4 @@ function renderTracksInfo(allTracks) {
     table.setElement($("#backbone"));
     table.render();
 }
+loadUserPlaylists();
