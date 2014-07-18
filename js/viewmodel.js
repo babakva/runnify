@@ -20,6 +20,11 @@ var TrackCollection = Backbone.Collection.extend({
     }
 });
 
+
+var WorkoutCollection = Backbone.Collection.extend({
+    model:TrackModel
+});
+
 var TableView = Backbone.View.extend({
     render:function() {
         console.info("Render Table View");

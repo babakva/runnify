@@ -10,7 +10,7 @@ function main() {
                 artists.toArray().forEach(function (artist) {
                     artistLength--;
                     topTracks.push(getArtistTopTracks(artist, models, Toplist, function(topTracks){
-                        sortTracks(topTracks, function(tracksWithBPM) {
+                        getBPM(topTracks, function(tracksWithBPM) {
                                 renderPlaylist(tracksWithBPM);
                                 renderTracksInfo(tracksWithBPM);
                         });
@@ -51,9 +51,10 @@ function loadPlaylist(playlistURI) {
             models.Playlist.fromURI(playlistURI).load('tracks').done(function(playlist) {
                 playlist.tracks.snapshot().done(function(trackSnapshot){
                     var tracks = trackSnapshot.toArray();
-                    sortTracks(tracks, function(tracksWithBPM) {
-                        renderPlaylist(tracksWithBPM);
-                        renderTracksInfo(tracksWithBPM);
+                    getBPM(tracks, function(tracksWithBPM) {
+                        var workoutList = Workout.getIntervall(tracksWithBPM);
+                        renderPlaylist(workoutList);
+                        renderTracksInfo(workoutList);
                     });
                 });
             });
@@ -92,7 +93,7 @@ function getArtistTopTracks(artist, models, Toplist, callback) {
     });
 }
 
-function sortTracks(tracks, callback) {
+function getBPM(tracks, callback) {
     var allTracks = new TrackCollection();
     var remainingTracks = tracks.length;
     for (var i=0; i<tracks.length; i++) {
