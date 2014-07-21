@@ -102,7 +102,8 @@ var TableView = Backbone.View.extend({
 var PlaylistModel = Backbone.Model.extend({
     defaults:{
         name:"None",
-        uri:"uri"
+        uri:"uri",
+        image:""
     },
     initialize:function() {
     }
@@ -114,7 +115,7 @@ var PlaylistCollection = Backbone.Collection.extend({
 
 var PlaylistView = Backbone.View.extend({
     el: '#playlists',
-    template:  _.template('<select id="playlist-selector" name="playlist-selector"><% _(this.collection.toJSON()).each(function(playlist) { %><option value="<%= playlist.uri %>"><%= playlist.name %></option><% }); %></select>'),
+    template:  _.template('<select id="playlist-selector" name="playlist-selector"><% var i = 0;_(this.collection.toJSON()).each(function(playlist) { %><option value="<%= playlist.uri %>"><%= playlist.name %></option><% }); %></select>'),
     events: {
         "change select[name='playlist-selector']": "updateSelect"
     },

@@ -4,7 +4,8 @@ body {
 	font-size: 12px;
 	line-height: 1.584;
 	color: #222;
-	background-color: #ecebe8;
+	background-color: #000;
+	height: 100%;
 }
 
 a {
@@ -24,7 +25,7 @@ h1, h2, h3, h4, h5, h6, .hdr-xxl, .hdr-xl, .hdr-l, .hdr-m, .hdr-sm, .hdr-xsm {
 	font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;
 	font-weight: bold;
 	line-height: 1.2;
-	color: #343434;
+	color: #fff;
 }
 
 .description {
@@ -49,7 +50,6 @@ section {position: relative;overflow: hidden;margin: 0 0 40px;}
 
 body::before {
 	content: '.';
-	background: url('/img/spotify-logo.png') no-repeat top right;
 	width: 400px;
 	height: 400px;
 	top: 0;
@@ -76,3 +76,15 @@ ul {margin:0 0 20px;}
 body, html {overflow:visible !important;}
 
 code {-webkit-user-select: auto;}
+
+
+label.btn > input[type='radio']
+{
+    display: none;
+}
+
+.scrollable-menu {
+    height: auto;
+    max-height: 200px;
+    overflow-x: hidden;
+}

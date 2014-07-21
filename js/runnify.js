@@ -24,6 +24,7 @@ function main() {
 function loadUserPlaylists() {
     require(['$api/library#Library'], function(Library) {
         var playlistCollection = new PlaylistCollection()
+        var plArray = [];
         returnedLibrary = Library.forCurrentUser();
         returnedLibrary.playlists.snapshot().done(function(snapshot) {
             for (var i = 0, l = snapshot.length; i < l; i++) {
@@ -32,12 +33,15 @@ function loadUserPlaylists() {
                 playlistModel.set({
                     uri: playlist.uri,
                     name: playlist.name,
+                    image: playlist.image,
                     error:function(error){console.error("Error")}
                 });
                 playlistCollection.push(playlistModel);
+                plArray.push(playlist);
             }
             plView = new PlaylistView({collection:playlistCollection});
             plView.render();
+            loadPlaylists(plArray);
         });
     });
 }
@@ -141,4 +145,15 @@ function renderTracksInfo(allTracks) {
     table.setElement($("#backbone"));
     table.render();
 }
+$('body').on('click', '.btn-group button', function (e) {
+    $(this).addClass('active');
+    $(this).siblings().removeClass('active');
+});
+
+$('#goButton').click(function () {
+    var btn = $(this)
+    btn.button('loading')
+    console.log(this);
+});
+
 loadUserPlaylists();

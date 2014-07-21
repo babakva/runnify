@@ -1,35 +1,72 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <title>BPM</title>
-        <link rel="stylesheet" href="$views/css/list.css">
-        <link rel="stylesheet" href="css/main.css">
-        <link href="css/bootstrap.min.css" rel="stylesheet">
-        <script src="js/jquery-1.7.2.js"></script>
-        <script src="js/underscore.js"></script>
-        <script src="js/backbone.js"></script>
-        <script src="js/viewmodel.js"></script>
-        <script src="js/echonest.js"></script>
-        <script src="js/runnify.js"></script>
-        <script src="js/workout.js"></script>
-        <script src="js/highcharts.js"></script>
-        <script src="js/bootstrap.min.js"></script>
-    </head>
-    <body>
-        <div class="container">
-            <h2>Runnify</h2>
-            <div class="dropdown" id="playlists">
-              <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">
-                Playlists
-                <span class="caret"></span>
-              </button>
+<head>
+    <meta charset="utf-8">
+    <title>BPM</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="$views/css/list.css">
+    <link rel="stylesheet" href="css/main.css">
+    <script src="js/jquery-1.7.2.js"></script>
+    <script src="js/underscore.js"></script>
+    <script src="js/backbone.js"></script>
+    <script src="js/viewmodel.js"></script>
+    <script src="js/echonest.js"></script>
+    <script src="js/runnify.js"></script>
+    <script src="js/workout.js"></script>
+    <script src="js/highcharts.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src='js/knockout-3.1.0.js'></script>
+</head>
+<body>
+    <div class="container">
+        <h2>Runnify</h2>
+
+        <div class="row" id="workoutContainer">
+          <div class="col-md-2">
+            <div class="btn-group">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span style="padding-right:5px;" data-bind="text: selectedPlaylist().name"></span><span class="caret"></span ></button>
+                <ul class="dropdown-menu scrollable-menu" role="menu" data-bind="foreach: playlists">
+                    <li><a role="menuitem" tabindex="-1" href="#" data-bind="text: name, click: $root.selectPlaylist"></a></li>
+                </ul>
             </div>
-            <div id="playlists"></div>
-            <ul id="toplist-artists"></ul>
-            <div id="chartContainer"></div>
-            <div id="backbone"></div>
-            <div id="playlistContainer"></div>
         </div>
-    </body>
+
+        <div class="col-md-5">
+            <div class="btn-group">
+              <label class="btn btn-default" data-bind="css: { 'active': workoutSession() === 'calm' }">
+                <input type="radio" name="options" id="calm" data-bind="checked: workoutSession,  checkedValue: 'calm'">Calm
+            </label>
+            <label class="btn btn-default" data-bind="css: { 'active': workoutSession() === 'intensive' }">
+                <input type="radio" name="options" id="intensive" data-bind="checked: workoutSession,  checkedValue: 'intensive'">Intensive
+            </label>
+            <label class="btn btn-default" data-bind="css: { 'active': workoutSession() === 'interval' }">
+                <input type="radio" name="options" id="interval" data-bind="checked: workoutSession,  checkedValue: 'interval'">Interval
+            </label>
+            <label class="btn btn-default" data-bind="css: { 'active': workoutSession() === 'hillclimbing' }">
+                <input type="radio" name="options" id="hillclimbing" data-bind="checked: workoutSession,  checkedValue: 'hillclimbing'">Hill-Climbing
+            </label>
+            <label class="btn btn-default" data-bind="css: { 'active': workoutSession() === 'random' }">
+                <input type="radio" name="options" id="random" data-bind="checked: workoutSession,  checkedValue: 'random'">Random
+            </label>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="form-group">
+            <input type="number" class="form-control" id="lengthInput" placeholder="Enter length" data-bind="value: length">
+        </div>
+    </div>
+
+    <div class="col-md-1">
+        <button type="button" id="goButton" class="btn btn-default" data-bind="click: submit">Go!</button>
+    </div>
+</div>
+
+<ul id="toplist-artists"></ul>
+<div id="chartContainer"></div>
+<div id="backbone"></div>
+<div id="playlistContainer"></div>
+</div>
+<script src='js/komodelview.js'></script>
+</body>
 </html>
