@@ -93,6 +93,12 @@ function getBPM(tracks, callback) {
            }
            continue;
         }
+
+        //EchoNest Api can't handle too many calls
+        if(i >= 30) {
+            callback(tracks);
+        }
+
         var item = tracks[i];
         EchoNest.getBPM(item, function(calledTrack, bpm) {
            if (bpm == -1) {
