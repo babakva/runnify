@@ -23,40 +23,25 @@ function main() {
 
 function loadUserPlaylists() {
     require(['$api/library#Library'], function(Library) {
-        var playlistCollection = new PlaylistCollection()
         var plArray = [];
         returnedLibrary = Library.forCurrentUser();
         returnedLibrary.playlists.snapshot().done(function(snapshot) {
             for (var i = 0, l = snapshot.length; i < l; i++) {
                 var playlist = snapshot.get(i);
-                var playlistModel = new PlaylistModel();
-                playlistModel.set({
-                    uri: playlist.uri,
-                    name: playlist.name,
-                    image: playlist.image,
-                    error:function(error){console.error("Error")}
-                });
-                playlistCollection.push(playlistModel);
                 plArray.push(playlist);
             }
-            plView = new PlaylistView({collection:playlistCollection});
-            plView.render();
             loadPlaylists(plArray);
         });
     });
 }
 
-function loadPlaylist(playlistURI) {
-    if (playlistURI === null) {
-        playlistURI = "spotify:user:babi:playlist:1Cz0g1j82xxq5QSD3YrDYP";
-    }
-    loadUserPlaylists();
+function loadPlaylist(playlistURI, workoutType, length) {
         require(['$api/models','$views/list#List'], function(models, List) {
             models.Playlist.fromURI(playlistURI).load('tracks').done(function(playlist) {
                 playlist.tracks.snapshot().done(function(trackSnapshot){
                     var tracks = trackSnapshot.toArray();
                     getBPM(tracks, function(tracksWithBPM) {
-                        var workoutList = Workout.getIntervall(tracksWithBPM);
+                        var workoutList = Workout.getWorkout(tracksWithBPM, workoutType, length);
                         renderPlaylist(workoutList);
                         renderTracksInfo(workoutList);
                     });
@@ -71,13 +56,14 @@ function renderPlaylist(allTracks) {
                 playlist.load('tracks').done(function(loadedPlaylist) {
                     loadedPlaylist.tracks.clear();
                     allTracks.forEach(function(track) {
-                        loadedPlaylist.tracks.add(models.Track.fromURI(track.get("spotifyURI")));
+                        loadedPlaylist.tracks.add(models.Track.fromURI(track.uri));
                     });
                 });
                 var list = List.forPlaylist(playlist);
                 document.getElementById('playlistContainer').innerHTML = '';
                 document.getElementById('playlistContainer').appendChild(list.node);
-                list.init();
+                setTimeout(function(){list.init();}, 500);
+                
             });
     });
 }
@@ -98,62 +84,95 @@ function getArtistTopTracks(artist, models, Toplist, callback) {
 }
 
 function getBPM(tracks, callback) {
-    var allTracks = new TrackCollection();
     var remainingTracks = tracks.length;
     for (var i=0; i<tracks.length; i++) {
         if(tracks[i] === null) {
             remainingTracks--;
             if(remainingTracks == 0) {
-                callback(allTracks);
+                callback(tracks);
            }
            continue;
         }
         var item = tracks[i];
-        var spotifyURI = item.uri;
-        var length = item.duration;
-        var id = item.uri.split(":")[2];
-        var artist = item.artists[0].name;
-        var title = item.name;
-        var track = new TrackModel();
-        track.set({
-           id: id,
-           title: title,
-           artist: artist,
-           track: item,
-           spotifyURI: spotifyURI,
-           length: length,
-           error:function(error){console.error("Error")}
-        });
-        allTracks.push(track);
-        EchoNest.getBPM(track, function(calledTrack, bpm) {
+        EchoNest.getBPM(item, function(calledTrack, bpm) {
            if (bpm == -1) {
                remainingTracks--;
-               allTracks.remove(calledTrack);
+               tracks.remove(calledTrack);
            } else {
-                calledTrack.set("bpm",Math.round(bpm));
+                calledTrack.bpm = Math.round(bpm);
                 remainingTracks--;
            }
            if(remainingTracks == 0) {
-                callback(allTracks);
+                callback(tracks);
            }
        });
     }
 }
 
-function renderTracksInfo(allTracks) {
-    table = new TableView({collection:allTracks});
-    table.setElement($("#backbone"));
-    table.render();
+function renderTracksInfo(tracks) {
+        console.info("Render Table View");
+        var chartData = [];
+        var totalLength = 0;
+        _.each(tracks, (function(t) {
+            chartData.push({x: totalLength, y: t.bpm, track: t});
+            totalLength += t.duration;;
+        }));
+
+        $("#chartContainer").highcharts({
+                chart: {
+                    type: 'areaspline',
+                    animation: Highcharts.svg // don't animate in old IE
+                },
+                title: {
+                    text: 'Workout'
+                },
+                xAxis: {
+                    type: 'datetime',
+                    tickPixelInterval: 200,
+                    dateTimeLabelFormats: {
+                        second: '%M:%S',
+                        minute: '%M:%S',
+                        hour: '%M:%S',
+                        day: '%M:%S',
+                        week: '%M:%S',
+                        month: '%M:%S',
+                        year: '%M:%S'
+                    }
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: 'Intensity'
+                    }
+                },
+                legend: {
+                    enabled: false
+                },
+                tooltip: {
+                    formatter: function () {
+                        var time = new Date(this.point.track.duration);
+                        var minutes = time.getMinutes();
+                        var seconds = time.getSeconds() < 10 ? '0' + time.getSeconds() : time.getSeconds();
+                        return '<b>' + this.point.track.artists[0].name +' - ' + this.point.track.name + '</b>' +
+                         '<br>' + this.point.y + ' bpm' + 
+                         '<br>time: ' + minutes + '.' + seconds;
+                    }
+                },
+                series: [{
+                    name: 'BPM',
+                    data: chartData,
+                }]
+            });
 }
+
 $('body').on('click', '.btn-group button', function (e) {
     $(this).addClass('active');
     $(this).siblings().removeClass('active');
 });
 
 $('#goButton').click(function () {
-    var btn = $(this)
-    btn.button('loading')
-    console.log(this);
+    var btn = $(this);
+    btn.button('loading');
 });
 
 loadUserPlaylists();

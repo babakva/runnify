@@ -6,7 +6,6 @@ var Playlist = function (name, uri) {
   self.uri = ko.observable(uri);
 };
 
-
 var ModelView = function() {
   var self = this;
   self.workoutSession = ko.observable();
@@ -26,10 +25,7 @@ var ModelView = function() {
   }   
 
   self.submit = function() {
-    console.log(self.workoutSession());
-    console.log(self.selectedPlaylist().uri());
-    console.log(self.length());
-    loadPlaylist(self.selectedPlaylist().uri());
+    loadPlaylist(self.selectedPlaylist().uri(), self.workoutSession(), self.length());
   }
 };
 

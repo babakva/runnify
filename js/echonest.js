@@ -1,8 +1,8 @@
 EchoNest = {
     getBPM : function(track, callback) {
-        var artist = track.get("artist");
-        var title = track.get("track");
-        var id = track.get("id");
+        var artist = track.artists[0].name;
+        var title = track.name;
+        var id = track.uri.split(":")[2];
         id = "spotify-WW:track:"+id;
         var url = 'http://developer.echonest.com/api/v4/track/profile?api_key=[api_key]'+
             '&id='+id+
@@ -12,12 +12,11 @@ EchoNest = {
                 success: function(data) {
                     if (data.response.status.code === 0) {
                         var bpm = data.response.track.audio_summary.tempo;
-                        console.info(bpm);
-                        callback(track,bpm);
+                        callback(track, bpm);
                     }
                     else {
                         console.info("Unable to find "+artist+"-"+title);
-                        callback(null);
+                        callback(track, -1);
                     }
                 },
                 error:function(data, text, error) {
