@@ -103,7 +103,10 @@ function getBPM(tracks, callback) {
         EchoNest.getBPM(item, function(calledTrack, bpm) {
            if (bpm == -1) {
                remainingTracks--;
-               tracks.remove(calledTrack);
+               indexOfRemoved = tracks.indexOf(calledTrack);
+               if(indexOfRemoved > -1) {
+                    tracks.splice(indexOfRemoved, 1);
+               }
            } else {
                 calledTrack.bpm = Math.round(bpm);
                 remainingTracks--;
